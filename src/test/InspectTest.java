@@ -30,18 +30,50 @@ public class InspectTest
 	}
 
 	@Test
-	public void testInspectExtendsObject() {
+	public void testInspectEmptyClass() {
 		String expectedOutput = 
-				Parent.class.getName() + "\r\n" +
+				EmptyClass.class.getName() + "\r\n" +
 				Object.class.getName() + "\r\n";
 		
-		inspector.inspect(new Parent(), false);
+		inspector.inspect(new EmptyClass(), false);
 		
 		String content	= outBytes.toString();
 		assertEquals(expectedOutput, content);
 	}
+	
+	@Test
+	public void testInspectMethods() {
+		String expectedOutput = 
+				Parent.class.getName() + "\r\n" +
+				Object.class.getName() + "\r\n" + 
+				"public " + String.class.getName() + " getName()\r\n" + 
+				"public void setName(" + String.class.getName() + ") throws " + NullPointerException.class.getName() + "\r\n";
+		
+		inspector.inspect(new Parent(), false);
+		
+		String content = outBytes.toString();
+		assertEquals(expectedOutput, content);
+	}
+	
+	class EmptyClass {}
 
 	class Parent {
+		
+		String name;
+		
+		public String getName()
+		{
+			return name;
+		}
+		
+		public void setName(String newName) throws NullPointerException
+		{
+			if (newName == null)
+			{
+				throw new NullPointerException();
+			}
+			name = newName;
+		}
 	}
 
 }
