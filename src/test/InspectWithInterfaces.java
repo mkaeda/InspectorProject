@@ -30,10 +30,11 @@ public class InspectWithInterfaces
 	@Test
 	public void testInspectHasEmptyInterfaces() {
 		String expectedOutput = 
-				Parent.class.getName() + "\r\n" + 
-				Object.class.getName() + "\r\n"	+ 
-				Interface2.class.getName() + "\r\n" + 
-				Interface1.class.getName() + "\r\n";
+				Parent.class.getName() + "\r\n" + // Class
+				Object.class.getName() + "\r\n"	+ // Superclass
+				Interface2.class.getName() + "\r\n" + // Interface 1
+				Interface1.class.getName() + "\r\n" + // Interface 2
+				" (test.InspectWithInterfaces)\r\n"; // Default constructor
 
 		inspector.inspect(new Parent(), false);
 

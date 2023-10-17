@@ -1,5 +1,6 @@
 package main;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -70,7 +71,37 @@ public class Inspector {
 		}
 
 		// Get the constructors the class declares.
+		Constructor<?>[] constructors = objClass.getDeclaredConstructors();
+		List<String> names = new ArrayList<>();
 		// For each constructor, find the: parameter types and modifiers.
+		Parameter[] parameters;
+		Class<?>[] exceptions;
+		for (Constructor<?> c : constructors)
+		{
+			System.out.print(Modifier.toString(c.getModifiers()) + " ");
+			System.out.print("(");
+
+			parameters = c.getParameters();
+			for (Parameter p : parameters) {
+				String type = p.getType().getTypeName();
+				names.add(type);
+			}
+			printList(names, ", ");
+			names.clear();
+			System.out.print(")");
+
+			exceptions = c.getExceptionTypes();
+			if (exceptions.length > 0) {
+				System.out.print(" throws ");
+				for (Class<?> ex : exceptions) {
+					names.add(ex.getName());
+				}
+				printList(names, ", ");
+				names.clear();
+			}
+
+			System.out.println();
+		}
 
 		// Get the fields the class declares. For each, find the type, modifiers, and
 		// current value.
