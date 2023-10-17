@@ -1,6 +1,7 @@
 package main;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Inspector {
 
-	public void inspect(Object obj, boolean recursive) {
+	public void inspect(Object obj, boolean recursive) throws IllegalArgumentException, IllegalAccessException {
 		Class<?> objClass = obj.getClass();
 
 		// Get name of the declaring class.
@@ -103,14 +104,27 @@ public class Inspector {
 			System.out.println();
 		}
 
-		// Get the fields the class declares. For each, find the type, modifiers, and
-		// current value.
-
-		// If the field is an object reference, and recursive is set to false,
-		// print the “reference value” directly (the name of the object’s class plus the
-		// object’s “identity hash code”).
-
-		// Else, make a recursive call on that object.
+		// Get the fields the class declares.		
+		Field[] fields = objClass.getDeclaredFields();
+		// For each, find the type, modifiers, and current value.
+        for (Field field : fields) {
+        	System.out.print(Modifier.toString(field.getModifiers()) + " ");
+        	
+        	Class<?> fieldType = field.getType();
+        	System.out.print(fieldType.getTypeName() + " = ");
+        	
+        	field.setAccessible(true);
+        	Object fieldObj = field.get(obj);
+        	if (fieldType.isPrimitive() || !recursive)
+        	{
+        		// Print the primitive value or object “reference value”.
+        		System.out.println(fieldObj);
+        	}        	
+    		else 
+    		{
+    			// TODO recursive call on field object
+    		}
+        }
 
 		// Traverse the inheritance hierarchy to find all the methods, constructors,
 		// fields, and field values that each superclass and super-interface declares.

@@ -28,13 +28,14 @@ public class InspectWithInterfaces
 	}
 
 	@Test
-	public void testInspectHasEmptyInterfaces() {
+	public void testInspectHasEmptyInterfaces() throws IllegalArgumentException, IllegalAccessException {
 		String expectedOutput = 
 				Parent.class.getName() + "\r\n" + // Class
 				Object.class.getName() + "\r\n"	+ // Superclass
 				Interface2.class.getName() + "\r\n" + // Interface 1
 				Interface1.class.getName() + "\r\n" + // Interface 2
-				" (test.InspectWithInterfaces)\r\n"; // Default constructor
+				" (test.InspectWithInterfaces)\r\n" + // Default constructor
+				"final " + this.getClass().getName() + " = " + this.toString() + "\r\n"; // default "this" field
 
 		inspector.inspect(new Parent(), false);
 
