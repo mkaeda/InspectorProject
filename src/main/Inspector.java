@@ -1,4 +1,4 @@
-package inspector;
+package main;
 
 public class Inspector {
 
