@@ -2,13 +2,22 @@ package main;
 
 public class Inspector {
 
-	public void inspect(Object obj, boolean recursive) {
+	public void inspect(Object obj, boolean recursive)
+	{
+		Class<?> objClass = obj.getClass();
+		
 		// Get name of the declaring class.
-
-		// Get name of the immediate superclass.
+		System.out.println(objClass.getName());
+		
+		Class<?> superClass;
+		if ((superClass = objClass.getSuperclass()) != null)
+		{
+			// Get name of the immediate superclass.
+			System.out.println(superClass.getName());
+		}
 
 		// Get name of the interfaces the class implements.
-
+		
 		// Get methods the class declares.
 		// For each method, find the: exceptions thrown, parameter types, return type,
 		// and modifiers.
