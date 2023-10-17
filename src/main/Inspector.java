@@ -16,7 +16,15 @@ public class Inspector {
 			System.out.println(superClass.getName());
 		}
 
-		// Get name of the interfaces the class implements.
+		Class<?>[] interfaces = objClass.getInterfaces();
+		if (interfaces.length > 0)
+		{
+			// Get name of the interfaces the class implements.
+			for (Class<?> c : interfaces)
+			{
+	            System.out.println(c.getName());
+	        }
+		}
 		
 		// Get methods the class declares.
 		// For each method, find the: exceptions thrown, parameter types, return type,

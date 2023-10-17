@@ -1,3 +1,13 @@
 /InspectTest.class
 /InspectTest$LeafClass.class
 /InspectTest$Parent.class
+/InspectTest$Interface1.class
+/InspectTest$Interface2.class
+/InspectTest$Interface3.class
+/InspectTest$ImplementsInterfaces.class
+/InspectWithInterfaces.class
+/InspectWithInterfaces$ImplementsInterfaces.class
+/InspectWithInterfaces$Interface1.class
+/InspectWithInterfaces$Interface2.class
+/InspectWithInterfaces$Interface3.class
+/InspectWithInterfaces$Parent.class

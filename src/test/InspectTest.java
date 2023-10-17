@@ -43,4 +43,5 @@ public class InspectTest
 
 	class Parent {
 	}
+
 }
