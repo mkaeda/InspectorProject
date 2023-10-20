@@ -1,5 +1,6 @@
 package main;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,16 +20,10 @@ public class Inspector {
 		// Print object introspection.
 		printClass(objClass);
 		printSuperclass(objClass, obj, recursive);
-		printInterfaces(objClass);
+		printInterfaces(objClass, obj, recursive);
 		printDeclaredMethods(objClass);
 		printDeclaredConstructors(objClass);
 		printDeclaredFields(objClass, obj, recursive);
-		
-		// TODO
-		// Traverse the inheritance hierarchy to find all the methods, constructors,
-		// fields, and field values that each superclass and super-interface declares.
-		// Be sure you can also handle any array you might encounter, printing out its
-		// name, component type, length, and all its contents.
 	}
 	
 	private void printClass(Class<?> objClass)
@@ -49,7 +44,7 @@ public class Inspector {
 				{
 					// Instantiation not possible
 					printSuperclass(superClass, obj, recursive);
-					printInterfaces(superClass);
+					printInterfaces(superClass, obj, recursive);
 					printDeclaredMethods(superClass);
 					printDeclaredConstructors(superClass);
 					printDeclaredFields(superClass, obj, recursive);
@@ -86,7 +81,7 @@ public class Inspector {
 					{
 						// Object instantiation not possible.
 						printSuperclass(superClass, obj, recursive);
-						printInterfaces(superClass);
+						printInterfaces(superClass, obj, recursive);
 						printDeclaredMethods(superClass);
 						printDeclaredConstructors(superClass);
 						printDeclaredFields(superClass, obj, recursive);
@@ -96,13 +91,23 @@ public class Inspector {
 		}
 	}
 	
-	private void printInterfaces(Class<?> objClass)
+	private void printInterfaces(Class<?> objClass, Object obj, boolean recursive)
 	{
 		Class<?>[] interfaces = objClass.getInterfaces();
 		if (interfaces.length > 0) {
 			// Print names of the interfaces the class implements.
-			Arrays.stream(interfaces).map(Class::getName).forEach(System.out::println);
-			// TODO if recursive traverse hierarchy
+			Arrays.stream(interfaces).forEach(i -> {
+				System.out.println(i.toString());
+				Class<?>[] superInterfaces = i.getInterfaces();
+				// Traverse interface hierarchy.
+				Arrays.stream(superInterfaces).forEach(si -> {
+					printSuperclass(si, obj, recursive);
+					printInterfaces(si, obj, recursive);
+					printDeclaredMethods(si);
+					printDeclaredConstructors(si);
+					printDeclaredFields(si, obj, recursive);					
+				});
+			});
 		}
 	}
 	
@@ -142,18 +147,42 @@ public class Inspector {
 	        try
 	        {
 	        	System.out.print(field.toString());
-	            System.out.print(" = ");
 
 	            field.setAccessible(true);
 	            Object fieldObj = field.get(obj);
 	            if (field.getType().isPrimitive() || !recursive)
 	            {
+	            	System.out.print(" = ");
 	                System.out.println(fieldObj);
 	            }
+	            else if (field.getType().isArray() || fieldObj instanceof List<?>)
+	            {
+	            	// Field is a list / array of objects
+	            	Object array;
+	            	if (fieldObj instanceof List<?>)
+	            	{
+	            		List<?> listObj = (List<?>) fieldObj;
+	            		array = listObj.toArray();
+	            	}
+	            	else
+	            	{
+	            		array = fieldObj;
+	            	}
+	            	int length = Array.getLength(array);
+	            	System.out.print(array.getClass().getComponentType());
+	            	System.out.println("[" + length + "] = {");	            	
+	            	for(int i = 0; i < length; i++)
+	            	{
+	            		inspect(Array.get(array, i), recursive);
+	            	}	  
+	            	System.out.println("}");
+	            }	            
 	            else
 	            {
+	            	System.out.print(" = {");
 	            	inspect(fieldObj, recursive);
-	            }
+	            	System.out.println("}");
+	            }	            
 	        }
 	        catch (IllegalArgumentException | IllegalAccessException e)
 	        {

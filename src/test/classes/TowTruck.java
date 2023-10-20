@@ -19,6 +19,7 @@ public class TowTruck extends Truck implements CanTowCar
 	public void tow(Vehicle vehicle)
 	{
 		// do something...
+		vehicles.add(vehicle);
 	}
 	
 	@Override
