@@ -15,75 +15,40 @@ public class Inspector {
 
 	public void inspect(Object obj, boolean recursive)
 	{
-		Class<?> objClass = obj.getClass();
-		// Print object introspection.
-		printClass(objClass);
-		System.out.println("{");
-		printSuperclass(objClass, obj, recursive);
-		printInterfaces(objClass, obj, recursive);
-		printDeclaredMethods(objClass);
-		printDeclaredConstructors(objClass);
-		printDeclaredFields(objClass, obj, recursive);
+		inspectClass(obj, obj.getClass(), recursive);
 	}
 	
-	private void printClass(Class<?> objClass)
+	private void inspectClass(Object obj, Class<?> clazz, boolean recursive)
 	{
-		System.out.println(objClass.getName());
+		printClass(clazz);
+		System.out.println("{");
+		printSuperclass(obj, clazz, recursive);
+		printInterfaces(obj, clazz, recursive);
+		printDeclaredMethods(clazz);
+		printDeclaredConstructors(clazz);
+		printDeclaredFields(obj, clazz, recursive);
+		System.out.println("}");
 	}
 	
-	private void printSuperclass(Class<?> objClass, Object obj, boolean recursive)
+	private void printClass(Class<?> clazz)
+	{
+		System.out.println(clazz.getName());
+	}
+	
+	private void printSuperclass(Object obj, Class<?> clazz, boolean recursive)
 	{
 		Class<?> superClass;
-		if ((superClass = objClass.getSuperclass()) != null) {
+		if ((superClass = clazz.getSuperclass()) != null) {
 			// Get name of the immediate superclass.
 			System.out.print("SuperClass >> ");
 			if (recursive)
 			{
-				if (Modifier.isAbstract(superClass.getModifiers()))
-				{
-					// Instantiation not possible
-					printClass(superClass);
-					System.out.println("{");
-					printSuperclass(superClass, obj, recursive);
-					printInterfaces(superClass, obj, recursive);
-					printDeclaredMethods(superClass);
-					printDeclaredConstructors(superClass);
-					printDeclaredFields(superClass, obj, recursive);
-					System.out.println("}");
-				}
-				else
-				{
-					Constructor<?>[] constructors = superClass.getConstructors();
-					if (constructors.length > 0)
-					{
-						try 
-						{
-							inspect(constructors[0].newInstance(), recursive);
-						} 
-						catch (Exception e) 
-						{
-							System.out.println("err: " + e.getMessage());
-						}
-					}
-					else
-					{
-						// Object instantiation not possible.
-						printClass(superClass);
-						System.out.println("{");
-						printSuperclass(superClass, obj, recursive);
-						printInterfaces(superClass, obj, recursive);
-						printDeclaredMethods(superClass);
-						printDeclaredConstructors(superClass);
-						printDeclaredFields(superClass, obj, recursive);
-						System.out.println("}");
-					}
-				}
-				
+				inspectClass(obj, superClass, recursive);
 			}
 		}
 	}
 	
-	private void printInterfaces(Class<?> objClass, Object obj, boolean recursive)
+	private void printInterfaces(Object obj, Class<?> objClass, boolean recursive)
 	{
 		Class<?>[] interfaces = objClass.getInterfaces();
 		if (interfaces.length > 0) {
@@ -94,12 +59,7 @@ public class Inspector {
 				Class<?>[] superInterfaces = i.getInterfaces();
 				// Traverse interface hierarchy.
 				Arrays.stream(superInterfaces).forEach(si -> {
-					printClass(si);
-					printSuperclass(si, obj, recursive);
-					printInterfaces(si, obj, recursive);
-					printDeclaredMethods(si);
-					printDeclaredConstructors(si);
-					printDeclaredFields(si, obj, recursive);					
+					inspectClass(obj, si, recursive);					
 				});
 				System.out.println("}");
 			});
@@ -137,7 +97,7 @@ public class Inspector {
 		System.out.println("}");
 	}
 	
-	private void printDeclaredFields(Class<?> objClass, Object obj, boolean recursive)			
+	private void printDeclaredFields(Object obj, Class<?> objClass, boolean recursive)			
 	{
 		System.out.println("Fields >> {");
 		// Get the fields the class declares.		
