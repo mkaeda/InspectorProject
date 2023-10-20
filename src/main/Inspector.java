@@ -12,26 +12,53 @@ import java.util.List;
 
 public class Inspector {
 
-	public void inspect(Object obj, boolean recursive) throws IllegalArgumentException, IllegalAccessException {
+	public void inspect(Object obj, boolean recursive) throws IllegalArgumentException, IllegalAccessException
+	{
 		Class<?> objClass = obj.getClass();
-
-		// Get name of the declaring class.
+		// Print object introspection.
+		printClass(objClass);
+		printSuperclass(objClass);
+		printInterfaces(objClass);
+		printDeclaredMethods(objClass);
+		printDeclaredConstructors(objClass);
+		printDeclaredFields(obj, recursive);
+		
+		// TODO
+		// Traverse the inheritance hierarchy to find all the methods, constructors,
+		// fields, and field values that each superclass and super-interface declares.
+		// Be sure you can also handle any array you might encounter, printing out its
+		// name, component type, length, and all its contents.
+	}
+	
+	private void printClass(Class<?> objClass)
+	{
+		// Print name of the declaring class.
 		System.out.println(objClass.getName());
-
+	}
+	
+	private void printSuperclass(Class<?> objClass)
+	{
 		Class<?> superClass;
 		if ((superClass = objClass.getSuperclass()) != null) {
 			// Get name of the immediate superclass.
 			System.out.println(superClass.getName());
 		}
-
+	}
+	
+	private void printInterfaces(Class<?> objClass)
+	{
 		Class<?>[] interfaces = objClass.getInterfaces();
 		if (interfaces.length > 0) {
 			// Get name of the interfaces the class implements.
 			for (Class<?> c : interfaces) {
 				System.out.println(c.getName());
+				// TODO Traverse interface hierarchy.
 			}
 		}
-
+	}
+	
+	private void printDeclaredMethods(Class<?> objClass)
+	{
 		// Get methods the class declares.
 		Method[] declaredMethods = objClass.getDeclaredMethods();
 
@@ -70,7 +97,10 @@ public class Inspector {
 				System.out.println();
 			}
 		}
-
+	}
+	
+	private void printDeclaredConstructors(Class<?> objClass)
+	{
 		// Get the constructors the class declares.
 		Constructor<?>[] constructors = objClass.getDeclaredConstructors();
 		List<String> names = new ArrayList<>();
@@ -100,10 +130,14 @@ public class Inspector {
 				printList(names, ", ");
 				names.clear();
 			}
-
 			System.out.println();
 		}
-
+	}
+	
+	private void printDeclaredFields(Object obj, boolean recursive) 
+			throws IllegalArgumentException, IllegalAccessException
+	{
+		Class<?> objClass = obj.getClass();
 		// Get the fields the class declares.		
 		Field[] fields = objClass.getDeclaredFields();
 		// For each, find the type, modifiers, and current value.
@@ -125,11 +159,6 @@ public class Inspector {
     			// TODO recursive call on field object
     		}
         }
-
-		// Traverse the inheritance hierarchy to find all the methods, constructors,
-		// fields, and field values that each superclass and super-interface declares.
-		// Be sure you can also handle any array you might encounter, printing out its
-		// name, component type, length, and all its contents.
 	}
 
 	private void printList(List<String> list, String delimiter) {
