@@ -70,28 +70,17 @@ public class Inspector {
 			// and modifiers.
 			Class<?>[] exceptions;
 			Parameter[] parameters;
-			List<String> names = new ArrayList<>();
 			for (Method method : declaredMethods) {
 				System.out.print(Modifier.toString(method.getModifiers()) + " ");
 				System.out.print(method.getReturnType().getTypeName() + " ");
-				System.out.print(method.getName() + "(");
+				System.out.print(method.getName());
 
 				parameters = method.getParameters();
-				for (Parameter p : parameters) {
-					names.add(p.getType().getTypeName());
-				}
-				printList(names, ", ");
-				names.clear();
-				System.out.print(")");
+				printParameters(parameters);
 
 				exceptions = method.getExceptionTypes();
 				if (exceptions.length > 0) {
-					System.out.print(" throws ");
-					for (Class<?> ex : exceptions) {
-						names.add(ex.getName());
-					}
-					printList(names, ", ");
-					names.clear();
+					printExceptions(exceptions);
 				}
 
 				System.out.println();
@@ -103,32 +92,19 @@ public class Inspector {
 	{
 		// Get the constructors the class declares.
 		Constructor<?>[] constructors = objClass.getDeclaredConstructors();
-		List<String> names = new ArrayList<>();
 		// For each constructor, find the: parameter types and modifiers.
 		Parameter[] parameters;
 		Class<?>[] exceptions;
 		for (Constructor<?> c : constructors)
 		{
 			System.out.print(Modifier.toString(c.getModifiers()) + " ");
-			System.out.print("(");
-
+			
 			parameters = c.getParameters();
-			for (Parameter p : parameters) {
-				String type = p.getType().getTypeName();
-				names.add(type);
-			}
-			printList(names, ", ");
-			names.clear();
-			System.out.print(")");
+			printParameters(parameters);
 
 			exceptions = c.getExceptionTypes();
 			if (exceptions.length > 0) {
-				System.out.print(" throws ");
-				for (Class<?> ex : exceptions) {
-					names.add(ex.getName());
-				}
-				printList(names, ", ");
-				names.clear();
+				printExceptions(exceptions);
 			}
 			System.out.println();
 		}
@@ -159,6 +135,28 @@ public class Inspector {
     			// TODO recursive call on field object
     		}
         }
+	}
+	
+	private void printParameters(Parameter[] parameters)
+	{
+		List<String> names = new ArrayList<>();
+		System.out.print("(");
+		for (Parameter p : parameters) {
+			String type = p.getType().getTypeName();
+			names.add(type);
+		}
+		printList(names, ", ");
+		System.out.print(")");
+	}
+	
+	private void printExceptions(Class<?>[] exceptions)
+	{
+		List<String> names = new ArrayList<>();
+		System.out.print(" throws ");
+		for (Class<?> ex : exceptions) {
+			names.add(ex.getName());
+		}
+		printList(names, ", ");
 	}
 
 	private void printList(List<String> list, String delimiter) {
