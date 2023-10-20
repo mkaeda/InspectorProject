@@ -110,45 +110,51 @@ public class Inspector {
 	        	System.out.print(field.toString());
 
 	            field.setAccessible(true);
-	            Object fieldObj = field.get(obj);
-	            if (field.getType().isPrimitive() || !recursive)
+	            try
 	            {
-	            	System.out.print(" = ");
-	                System.out.println(fieldObj);
+	            	Object fieldObj = field.get(obj);
+		            if (field.getType().isPrimitive() || !recursive)
+		            {
+		            	System.out.print(" = ");
+		                System.out.println(fieldObj);
+		            }
+		            else if (field.getType().isArray() || fieldObj instanceof List<?>)
+		            {
+		            	// Field is a list / array of objects
+		            	Object array;
+		            	if (fieldObj instanceof List<?>)
+		            	{
+		            		List<?> listObj = (List<?>) fieldObj;
+		            		array = listObj.toArray();
+		            	}
+		            	else
+		            	{
+		            		array = fieldObj;
+		            	}
+		            	int length = Array.getLength(array);
+		            	System.out.print(array.getClass().getComponentType());
+		            	System.out.println("[" + length + "] = {");	            	
+		            	for(int i = 0; i < length; i++)
+		            	{
+		            		inspect(Array.get(array, i), recursive);
+		            	}	  
+		            	System.out.println("}");
+		            }	            
+		            else
+		            {
+		            	System.out.print(" = {");
+		            	inspect(fieldObj, recursive);
+		            	System.out.println("}");
+		            }	            
 	            }
-	            else if (field.getType().isArray() || fieldObj instanceof List<?>)
+	            catch(Exception e)
 	            {
-	            	// Field is a list / array of objects
-	            	Object array;
-	            	if (fieldObj instanceof List<?>)
-	            	{
-	            		List<?> listObj = (List<?>) fieldObj;
-	            		array = listObj.toArray();
-	            	}
-	            	else
-	            	{
-	            		array = fieldObj;
-	            	}
-	            	int length = Array.getLength(array);
-	            	System.out.print(array.getClass().getComponentType());
-	            	System.out.println("[" + length + "] = {");	            	
-	            	for(int i = 0; i < length; i++)
-	            	{
-	            		inspect(Array.get(array, i), recursive);
-	            	}	  
-	            	System.out.println("}");
-	            }	            
-	            else
-	            {
-	            	System.out.print(" = {");
-	            	inspect(fieldObj, recursive);
-	            	System.out.println("}");
-	            }	            
+	            	System.out.println("cannot access field");
+	            }
 	        }
-	        catch (IllegalArgumentException | IllegalAccessException e)
+	        catch (IllegalArgumentException e)
 	        {
-	            e.printStackTrace();
-	            // This should never happen!
+	        	System.out.println("cannot access field");
 	        }
 	    });
 		System.out.println("}");
