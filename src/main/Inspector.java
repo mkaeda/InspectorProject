@@ -17,8 +17,8 @@ public class Inspector {
 		Class<?> objClass = obj.getClass();
 		// Print object introspection.
 		printClass(objClass);
-		printSuperclass(obj, recursive);
-		printInterfaces(obj, recursive);
+		printSuperclass(objClass);
+		printInterfaces(objClass);
 		printDeclaredMethods(objClass);
 		printDeclaredConstructors(objClass);
 		printDeclaredFields(obj, recursive);
@@ -36,18 +36,18 @@ public class Inspector {
 		System.out.println(objClass.getName());
 	}
 	
-	private void printSuperclass(Object obj, boolean recursive)
+	private void printSuperclass(Class<?> objClass)
 	{
-		Class<?> superClass = obj.getClass().getSuperclass();
-		if (superClass != null) {
+		Class<?> superClass;
+		if ((superClass = objClass.getSuperclass()) != null) {
 			// Get name of the immediate superclass.
 			System.out.println(superClass.getName());
 		}
 	}
 	
-	private void printInterfaces(Object obj, boolean recursive)
+	private void printInterfaces(Class<?> objClass)
 	{
-		Class<?>[] interfaces = obj.getClass().getInterfaces();
+		Class<?>[] interfaces = objClass.getInterfaces();
 		if (interfaces.length > 0) {
 			// Print names of the interfaces the class implements.
 			Arrays.stream(interfaces).map(Class::getName).forEach(System.out::println);
@@ -58,29 +58,17 @@ public class Inspector {
 	private void printDeclaredMethods(Class<?> objClass)
 	{
 		// Get methods the class declares.
-		Method[] declaredMethods = objClass.getDeclaredMethods();
+		Method[] methods = objClass.getDeclaredMethods();
 
-		if (declaredMethods.length > 0) {
+		if (methods.length > 0) {
 			// Sort by method name to ensure order for testing.
-			Arrays.sort(declaredMethods, Comparator.comparing(Method::getName));
+			Arrays.sort(methods, Comparator.comparing(Method::getName));
 			
 			// For each method, find the: exceptions thrown, parameter types, return type,
 			// and modifiers.
-			Arrays.stream(declaredMethods).forEach(m -> {
-	            printModifier(m.getModifiers());
-	            printTypeName(m.getReturnType());
-	            System.out.print(" " + m.getName());
-
-	            Parameter[] parameters = m.getParameters();
-	            printParameters(parameters);
-
-	            Class<?>[] exceptions = m.getExceptionTypes();
-	            if (exceptions.length > 0) {
-	                printExceptions(exceptions);
-	            }
-
-	            System.out.println();
-	        });
+			Arrays.stream(methods)
+				.map(Method::toString)
+				.forEach(System.out::println);
 		}
 	}
 	
@@ -89,18 +77,9 @@ public class Inspector {
 		// Get the constructors the class declares.
 		Constructor<?>[] constructors = objClass.getDeclaredConstructors();
 		// For each constructor, find the: parameter types and modifiers.
-		Arrays.stream(constructors).forEach(c -> {
-			printModifier(c.getModifiers());
-			
-			Parameter[] parameters = c.getParameters();
-			printParameters(parameters);
-
-			Class<?>[] exceptions = c.getExceptionTypes();
-			if (exceptions.length > 0) {
-				printExceptions(exceptions);
-			}
-			System.out.println();
-        });
+		Arrays.stream(constructors)
+			.map(Constructor::toString)
+			.forEach(System.out::println);
 	}
 	
 	private void printDeclaredFields(Object obj, boolean recursive)			
@@ -112,22 +91,18 @@ public class Inspector {
 		Arrays.stream(fields).forEach(field -> {
 	        try
 	        {
-	            printModifier(field.getModifiers());
-	        
-	            Class<?> fieldType = field.getType();
-	            printTypeName(fieldType);
+	        	System.out.print(field.toString());
 	            System.out.print(" = ");
 
 	            field.setAccessible(true);
 	            Object fieldObj = field.get(obj);
-	            if (fieldType.isPrimitive() || !recursive)
+	            if (field.getType().isPrimitive() || !recursive)
 	            {
-	                // Print the primitive value or object “reference value”.
 	                System.out.println(fieldObj);
 	            }
 	            else
 	            {
-	                // TODO Recursive inspect call on field object
+	            	inspect(fieldObj, recursive);
 	            }
 	        }
 	        catch (IllegalArgumentException | IllegalAccessException e)
