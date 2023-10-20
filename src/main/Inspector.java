@@ -4,9 +4,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -151,41 +148,5 @@ public class Inspector {
 	        }
 	    });
 		System.out.println("}");
-	}
-	
-	private void printModifier(int modifier)
-	{
-		System.out.print(Modifier.toString(modifier) + " ");
-	}
-	
-	private void printTypeName(Class<?> type)
-	{
-		System.out.print(type.getTypeName());
-	}
-	
-	private void printParameters(Parameter[] parameters)
-	{
-		List<String> names = new ArrayList<>();
-		System.out.print("(");
-		for (Parameter p : parameters) {
-			String type = p.getType().getTypeName();
-			names.add(type);
-		}
-		printList(names, ", ");
-		System.out.print(")");
-	}
-	
-	private void printExceptions(Class<?>[] exceptions)
-	{
-		List<String> names = new ArrayList<>();
-		System.out.print(" throws ");
-		for (Class<?> ex : exceptions) {
-			names.add(ex.getName());
-		}
-		printList(names, ", ");
-	}
-
-	private void printList(List<String> list, String delimiter) {
-		System.out.print(String.join(delimiter, list));
 	}
 }
