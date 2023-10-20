@@ -53,11 +53,15 @@ public class Inspector {
 			Arrays.stream(interfaces).forEach(i -> {
 				
 				System.out.println("Interface >> " + i.toString() + " {");
-				Class<?>[] superInterfaces = i.getInterfaces();
-				// Traverse interface hierarchy.
-				Arrays.stream(superInterfaces).forEach(si -> {
-					inspectClass(obj, si, recursive);					
-				});
+				inspectClass(obj, i, recursive);
+				if (recursive)
+				{
+					Class<?>[] superInterfaces = i.getInterfaces();
+					// Traverse interface hierarchy.
+					Arrays.stream(superInterfaces).forEach(si -> {
+						inspectClass(obj, si, recursive);					
+					});
+				}
 				System.out.println("}");
 			});
 		}
