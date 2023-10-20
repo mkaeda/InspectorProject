@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -70,15 +71,16 @@ public class Inspector {
 			// and modifiers.
 			Class<?>[] exceptions;
 			Parameter[] parameters;
-			for (Method method : declaredMethods) {
-				System.out.print(Modifier.toString(method.getModifiers()) + " ");
-				System.out.print(method.getReturnType().getTypeName() + " ");
-				System.out.print(method.getName());
+			for (Method m : declaredMethods)
+			{
+				printModifier(m.getModifiers());
+				printTypeName(m.getReturnType());
+				System.out.print(" " + m.getName());
 
-				parameters = method.getParameters();
+				parameters = m.getParameters();
 				printParameters(parameters);
 
-				exceptions = method.getExceptionTypes();
+				exceptions = m.getExceptionTypes();
 				if (exceptions.length > 0) {
 					printExceptions(exceptions);
 				}
@@ -97,7 +99,7 @@ public class Inspector {
 		Class<?>[] exceptions;
 		for (Constructor<?> c : constructors)
 		{
-			System.out.print(Modifier.toString(c.getModifiers()) + " ");
+			printModifier(c.getModifiers());
 			
 			parameters = c.getParameters();
 			printParameters(parameters);
@@ -117,8 +119,9 @@ public class Inspector {
 		// Get the fields the class declares.		
 		Field[] fields = objClass.getDeclaredFields();
 		// For each, find the type, modifiers, and current value.
-        for (Field field : fields) {
-        	System.out.print(Modifier.toString(field.getModifiers()) + " ");
+        for (Field field : fields)
+        {
+        	printModifier(field.getModifiers());
         	
         	Class<?> fieldType = field.getType();
         	System.out.print(fieldType.getTypeName() + " = ");
@@ -135,6 +138,16 @@ public class Inspector {
     			// TODO recursive call on field object
     		}
         }
+	}
+	
+	private void printModifier(int modifier)
+	{
+		System.out.print(Modifier.toString(modifier) + " ");
+	}
+	
+	private void printTypeName(Class<?> type)
+	{
+		System.out.print(type.getTypeName());
 	}
 	
 	private void printParameters(Parameter[] parameters)
