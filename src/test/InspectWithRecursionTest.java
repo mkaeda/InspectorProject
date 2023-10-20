@@ -4,9 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,8 +11,8 @@ import org.junit.Test;
 
 import main.Inspector;
 import test.classes.Biker;
+import test.classes.Car;
 import test.classes.Motorcycle;
-import test.classes.Vehicle;
 
 public class InspectWithRecursionTest
 {
@@ -34,13 +31,14 @@ public class InspectWithRecursionTest
 	@After
 	public void tearDown() throws Exception
 	{
-//		System.setOut(sysOut);
+		System.setOut(sysOut);
 	}
 
 	@Test
 	public void testRecursiveCallWithSuperclass()
 	{
-		fail("Not yet implemented");
+		inspector.inspect(new Car(), true);
+		assertEquals(getCarIntrospection(), outBytes.toString());
 	}
 	
 	@Test
@@ -50,52 +48,68 @@ public class InspectWithRecursionTest
 	
 	@Test
 	public void testRecursiveCallWithObjectField()
-	{
-		StringBuilder sb = new StringBuilder();
-		// class
-		sb.append("test.classes.Biker\r\n");
-		/// superclass
-		sb.append("java.lang.Object\r\n");
-		// TODO add traversal section for superclass.
-		// interface(s)
-		sb.append("");
-		// TODO add traversal section for superclass.
-		// method(s)
-		Arrays.stream(Biker.class.getDeclaredMethods())
-			.map(Method::toString)
-			.forEach(m -> {
-				sb.append(m.concat("\r\n"));
-			});
-		// constructor(s)
-		Arrays.stream(Biker.class.getDeclaredConstructors())
-			.map(Constructor::toString)
-			.forEach(c -> {
-				sb.append(c.concat("\r\n"));
-		});
-		// field(s)
-		sb.append("private test.classes.Motorcycle test.classes.Biker.bike = test.classes.Motorcycle\r\n");		
-		// >> Motorcycle - superclass
-		sb.append("test.classes.Vehicle\r\n");
-		// >> Motorcycle - interface(s)
-		sb.append("");
-		// >> Motorcycle - method(s)
-		sb.append("");
-		// >> Motorcycle - constructor(s)
-		Arrays.stream(Motorcycle.class.getDeclaredConstructors())
-			.map(Constructor::toString)
-			.forEach(c -> {
-				sb.append(c.concat("\r\n"));
-		});
-		// field(s)
-		sb.append("");
-		
+	{		
 		inspector.inspect(new Biker(new Motorcycle()), true);
 		
-		assertEquals(sb.toString(), outBytes.toString());
+		assertEquals(getBikerIntrospection(), outBytes.toString());
 	}
 	
 	@Test
 	public void testRecursiveCallWithArray() {
 		fail("Not yet implemented");
+	}
+	
+	private String getBikerIntrospection()
+	{
+		return "test.classes.Biker\r\n"
+				+ "java.lang.Object\r\n"
+				+ getObjectIntrospection()
+				+ "public test.classes.Biker(test.classes.Motorcycle)\r\n"
+				+ "private test.classes.Motorcycle test.classes.Biker.bike = "
+				+ getMotorcycleIntrospection();
+				
+							
+	}
+	
+	private String getMotorcycleIntrospection()
+	{
+		return "test.classes.Motorcycle\r\n"
+				+ getVehicleIntrospection(2)
+				+ "public test.classes.Motorcycle()\r\n";
+	}
+	
+	private String getObjectIntrospection()
+	{
+		return "java.lang.Object\r\n"
+				+ "protected native java.lang.Object java.lang.Object.clone() throws java.lang.CloneNotSupportedException\r\n"
+				+ "public boolean java.lang.Object.equals(java.lang.Object)\r\n"
+				+ "protected void java.lang.Object.finalize() throws java.lang.Throwable\r\n"
+				+ "public final native java.lang.Class java.lang.Object.getClass()\r\n"
+				+ "public native int java.lang.Object.hashCode()\r\n"
+				+ "public final native void java.lang.Object.notify()\r\n"
+				+ "public final native void java.lang.Object.notifyAll()\r\n"
+				+ "public java.lang.String java.lang.Object.toString()\r\n"
+				+ "public final void java.lang.Object.wait(long) throws java.lang.InterruptedException\r\n"
+				+ "public final void java.lang.Object.wait(long,int) throws java.lang.InterruptedException\r\n"
+				+ "public final void java.lang.Object.wait() throws java.lang.InterruptedException\r\n"
+				+ "private final native void java.lang.Object.wait0(long) throws java.lang.InterruptedException\r\n"
+				+ "public java.lang.Object()\r\n";
+	}
+	
+	private String getVehicleIntrospection(int numberOfWheels)
+	{
+		return "test.classes.Vehicle\r\n"
+				+ "java.lang.Object\r\n"
+				+ getObjectIntrospection()
+				+ "public int test.classes.Vehicle.getNumberOfWheels()\r\n"
+				+ "public test.classes.Vehicle(int)\r\n"
+				+ "private int test.classes.Vehicle.numberOfWheels = " + numberOfWheels + "\r\n";
+	}
+	
+	private String getCarIntrospection()
+	{
+		return "test.classes.Car\r\n"
+				+ getVehicleIntrospection(4)
+				+ "public test.classes.Car()\r\n";
 	}
 }

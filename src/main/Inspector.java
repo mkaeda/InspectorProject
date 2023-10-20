@@ -2,6 +2,7 @@ package main;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -17,11 +18,11 @@ public class Inspector {
 		Class<?> objClass = obj.getClass();
 		// Print object introspection.
 		printClass(objClass);
-		printSuperclass(objClass);
+		printSuperclass(objClass, obj, recursive);
 		printInterfaces(objClass);
 		printDeclaredMethods(objClass);
 		printDeclaredConstructors(objClass);
-		printDeclaredFields(obj, recursive);
+		printDeclaredFields(objClass, obj, recursive);
 		
 		// TODO
 		// Traverse the inheritance hierarchy to find all the methods, constructors,
@@ -36,12 +37,62 @@ public class Inspector {
 		System.out.println(objClass.getName());
 	}
 	
-	private void printSuperclass(Class<?> objClass)
+	private void printSuperclass(Class<?> objClass, Object obj, boolean recursive)
 	{
 		Class<?> superClass;
 		if ((superClass = objClass.getSuperclass()) != null) {
 			// Get name of the immediate superclass.
 			System.out.println(superClass.getName());
+			if (recursive)
+			{
+				if (Modifier.isAbstract(superClass.getModifiers()))
+				{
+					// Instantiation not possible
+					printSuperclass(superClass, obj, recursive);
+					printInterfaces(superClass);
+					printDeclaredMethods(superClass);
+					printDeclaredConstructors(superClass);
+					printDeclaredFields(superClass, obj, recursive);
+				}
+				else
+				{
+					Constructor<?>[] constructors = superClass.getConstructors();
+					if (constructors.length > 0)
+					{
+						boolean traversed = false;
+						int i = 0;
+						while (!traversed)
+						{
+							try {
+								Constructor<?> ctor = constructors[i];
+								inspect(ctor.newInstance(), recursive);
+								traversed = true;
+							} catch (InstantiationException e) {
+								i++;
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								i++;
+								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								i++;
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								i++;
+								e.printStackTrace();
+							}							
+						}
+					}
+					else
+					{
+						// Object instantiation not possible.
+						printSuperclass(superClass, obj, recursive);
+						printInterfaces(superClass);
+						printDeclaredMethods(superClass);
+						printDeclaredConstructors(superClass);
+						printDeclaredFields(superClass, obj, recursive);
+					}
+				}
+			}
 		}
 	}
 	
@@ -82,9 +133,8 @@ public class Inspector {
 			.forEach(System.out::println);
 	}
 	
-	private void printDeclaredFields(Object obj, boolean recursive)			
+	private void printDeclaredFields(Class<?> objClass, Object obj, boolean recursive)			
 	{
-		Class<?> objClass = obj.getClass();
 		// Get the fields the class declares.		
 		Field[] fields = objClass.getDeclaredFields();
 		// For each, find the type, modifiers, and current value.
