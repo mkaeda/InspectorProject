@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Inspector {
 
-	public void inspect(Object obj, boolean recursive) throws IllegalArgumentException, IllegalAccessException
+	public void inspect(Object obj, boolean recursive)
 	{
 		Class<?> objClass = obj.getClass();
 		// Print object introspection.
@@ -103,8 +103,7 @@ public class Inspector {
         });
 	}
 	
-	private void printDeclaredFields(Object obj, boolean recursive) 
-			throws IllegalArgumentException, IllegalAccessException
+	private void printDeclaredFields(Object obj, boolean recursive)			
 	{
 		Class<?> objClass = obj.getClass();
 		// Get the fields the class declares.		
