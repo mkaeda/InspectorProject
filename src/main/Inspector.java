@@ -17,8 +17,8 @@ public class Inspector {
 		Class<?> objClass = obj.getClass();
 		// Print object introspection.
 		printClass(objClass);
-		printSuperclass(objClass);
-		printInterfaces(objClass);
+		printSuperclass(obj, recursive);
+		printInterfaces(obj, recursive);
 		printDeclaredMethods(objClass);
 		printDeclaredConstructors(objClass);
 		printDeclaredFields(obj, recursive);
@@ -36,18 +36,18 @@ public class Inspector {
 		System.out.println(objClass.getName());
 	}
 	
-	private void printSuperclass(Class<?> objClass)
+	private void printSuperclass(Object obj, boolean recursive)
 	{
-		Class<?> superClass;
-		if ((superClass = objClass.getSuperclass()) != null) {
+		Class<?> superClass = obj.getClass().getSuperclass();
+		if (superClass != null) {
 			// Get name of the immediate superclass.
 			System.out.println(superClass.getName());
 		}
 	}
 	
-	private void printInterfaces(Class<?> objClass)
+	private void printInterfaces(Object obj, boolean recursive)
 	{
-		Class<?>[] interfaces = objClass.getInterfaces();
+		Class<?>[] interfaces = obj.getClass().getInterfaces();
 		if (interfaces.length > 0) {
 			// Print names of the interfaces the class implements.
 			Arrays.stream(interfaces).map(Class::getName).forEach(System.out::println);
